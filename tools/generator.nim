@@ -1,7 +1,7 @@
 # Written by Leonardo Mariscal <leo@ldmd.mx>, 2019
 
-import strutils, json, strformat, tables,
-       algorithm, sets, ./utils
+import std/strutils, std/json, std/strformat, std/tables,
+       std/algorithm, std/sets, std/parseutils, ./utils
 
 var enums: HashSet[string]
 var enumsCount: Table[string, int]
@@ -154,8 +154,14 @@ proc genEnums(output: var string) =
       table[dataValue] = dataName
 
     var tableOrder: OrderedTable[int, string] # Weird error where data is erased if used directly
-    for k, v in table.pairs:
-      tableOrder[k] = v
+    for k, v in table.mpairs:
+      # ignore empty enum name
+      if v.len > 0 and v != "END":
+        # transform enum numbers: add them a 'D' prefix
+        var num: int
+        if parseInt(v, num) != 0:
+          v = 'D' & v
+        tableOrder[k] = v
     tableOrder.sort(system.cmp)
 
     for k, v in tableOrder.pairs:
@@ -171,7 +177,7 @@ proc genTypeDefs(output: var string) =
   for name, obj in data.pairs:
     let ignorable = ["const_iterator", "iterator", "value_type", "ImS8",
                      "ImS16", "ImS32", "ImS64", "ImU8", "ImU16", "ImU32",
-                     "ImU64"]
+                     "ImU64", "ImBitArrayForNamedKeys"]
     if obj.getStr().startsWith("struct") or enums.contains(name) or ignorable.contains(name):
       continue
     output.add("  {name}* = {obj.getStr().translateType()}\n".fmt)
@@ -189,8 +195,15 @@ proc genTypes(output: var string) =
     if name == "Pair" or name == "ImGuiStoragePair" or name == "ImGuiStyleMod":
       continue
 
-    if name == "ImDrawChannel":
-      output.add("  ImDrawChannel* {.importc: \"ImDrawChannel\", imgui_header.} = ptr object\n")
+    var skip = false
+    let ignorables = ["ImDrawChannel", "ImGuiOldColumns", "ImGuiListClipperRange", "ImGuiListClipperData", "ImGuiTableTempData", "ImGuiTable"]
+    for ignorable in ignorables:
+      if name == ignorable:
+        output.add(&"  {ignorable}* {{.importc: \"{ignorable}\", imgui_header.}} = ptr object\n")
+        skip = true
+        continue
+
+    if skip:
       continue
 
     output.add("  {name}* {{.importc: \"{name}\", imgui_header.}} = object\n".fmt)

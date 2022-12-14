@@ -49,8 +49,6 @@ else:
 
 # Enums
 type
-  cstringConstImpl {.importc:"const char*".} = cstring
-  constChar* = distinct cstringConstImpl
   ImDrawFlags* {.pure, size: int32.sizeof.} = enum
     None = 0
     Closed = 1
@@ -933,41 +931,6 @@ type
 
 # TypeDefs
 type
-  ImRect* {.importc: "ImRect", imgui_header.} = object
-    min* {.importc: "Min".}: ImVec2
-    max* {.importc: "Max".}: ImVec2
-  ImVec1* {.importc: "ImVec1", imgui_header.} = object
-    x* {.importc: "x".}: float32
-  ImVec2* {.importc: "ImVec2", imgui_header.} = object
-    x* {.importc: "x".}: float32
-    y* {.importc: "y".}: float32
-  ImVec2ih* {.importc: "ImVec2ih", imgui_header.} = object
-    x* {.importc: "x".}: int16
-    y* {.importc: "y".}: int16
-  ImVec4* {.importc: "ImVec4", imgui_header.} = object
-    x* {.importc: "x".}: float32
-    y* {.importc: "y".}: float32
-    z* {.importc: "z".}: float32
-    w* {.importc: "w".}: float32
-  # ImBitArrayForNamedKeys* = uint32<ImGuiKey_NamedKey_COUNT,-ImGuiKey_NamedKey_BEGIN>
-  ImGuiInputTextCallbackData* {.importc: "ImGuiInputTextCallbackData", imgui_header.} = object
-    eventFlag* {.importc: "EventFlag".}: ImGuiInputTextFlags
-    flags* {.importc: "Flags".}: ImGuiInputTextFlags
-    userData* {.importc: "UserData".}: pointer
-    eventChar* {.importc: "EventChar".}: ImWchar
-    eventKey* {.importc: "EventKey".}: ImGuiKey
-    buf* {.importc: "Buf".}: cstring
-    bufTextLen* {.importc: "BufTextLen".}: int32
-    bufSize* {.importc: "BufSize".}: int32
-    bufDirty* {.importc: "BufDirty".}: bool
-    cursorPos* {.importc: "CursorPos".}: int32
-    selectionStart* {.importc: "SelectionStart".}: int32
-    selectionEnd* {.importc: "SelectionEnd".}: int32
-  ImGuiSizeCallbackData* {.importc: "ImGuiSizeCallbackData", imgui_header.} = object
-    userData* {.importc: "UserData".}: pointer
-    pos* {.importc: "Pos".}: ImVec2
-    currentSize* {.importc: "CurrentSize".}: ImVec2
-    desiredSize* {.importc: "DesiredSize".}: ImVec2
   ImDrawCallback* = proc(parent_list: ptr ImDrawList, cmd: ptr ImDrawCmd): void {.cdecl, varargs.}
   ImDrawIdx* = uint16
   ImFileHandle* = ptr FILE
@@ -1021,6 +984,8 @@ type
   ImSpanAllocator* = object # A little lost here. It is referenced in imgui_internal.h
   ImSpan* = object # ^^
   ImVectorImGuiColumns* {.importc: "ImVector_ImGuiColumns".} = object
+  ImGuiDockRequest* = ptr object
+  ImGuiDockNodeSettings* = ptr object
 
   #
   ImBitVector* {.importc: "ImBitVector", imgui_header.} = object
@@ -1040,24 +1005,6 @@ type
     clipRect* {.importc: "ClipRect".}: ImVec4
     textureId* {.importc: "TextureId".}: ImTextureID
     vtxOffset* {.importc: "VtxOffset".}: uint32
-  ImGuiViewport* {.importc: "ImGuiViewport", imgui_header.} = object
-    id* {.importc: "ID".}: ImGuiID
-    flags* {.importc: "Flags".}: ImGuiViewportFlags
-    pos* {.importc: "Pos".}: ImVec2
-    size* {.importc: "Size".}: ImVec2
-    workPos* {.importc: "WorkPos".}: ImVec2
-    workSize* {.importc: "WorkSize".}: ImVec2
-    dpiScale* {.importc: "DpiScale".}: float32
-    parentViewportId* {.importc: "ParentViewportId".}: ImGuiID
-    drawData* {.importc: "DrawData".}: ptr ImDrawData
-    rendererUserData* {.importc: "RendererUserData".}: pointer
-    platformUserData* {.importc: "PlatformUserData".}: pointer
-    platformHandle* {.importc: "PlatformHandle".}: pointer
-    platformHandleRaw* {.importc: "PlatformHandleRaw".}: pointer
-    platformWindowCreated* {.importc: "PlatformWindowCreated".}: bool
-    platformRequestMove* {.importc: "PlatformRequestMove".}: bool
-    platformRequestResize* {.importc: "PlatformRequestResize".}: bool
-    platformRequestClose* {.importc: "PlatformRequestClose".}: bool
   ImDrawData* {.importc: "ImDrawData", imgui_header.} = object
     valid* {.importc: "Valid".}: bool
     cmdListsCount* {.importc: "CmdListsCount".}: int32
@@ -1204,219 +1151,6 @@ type
     backupCursorPosPrevLine* {.importc: "BackupCursorPosPrevLine".}: ImVec2
     backupPrevLineTextBaseOffset* {.importc: "BackupPrevLineTextBaseOffset".}: float32
     backupLayout* {.importc: "BackupLayout".}: ImGuiLayoutType
-  ImGuiPlatformMonitor* {.importc: "ImGuiPlatformMonitor", imgui_header.} = object
-    mainPos* {.importc: "MainPos".}: ImVec2
-    mainSize* {.importc: "MainSize".}: ImVec2
-    workPos* {.importc: "WorkPos".}: ImVec2
-    workSize* {.importc: "WorkSize".}: ImVec2
-    dpiScale* {.importc: "DpiScale".}: float32
-  ImGuiPlatformIO* {.importc: "ImGuiPlatformIO", imgui_header.} = object
-    platform_CreateWindow* {.importc: "Platform_CreateWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
-    platform_DestroyWindow* {.importc: "Platform_DestroyWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
-    platform_ShowWindow* {.importc: "Platform_ShowWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
-    platform_SetWindowPos* {.importc: "Platform_SetWindowPos".}: proc(vp: ptr ImGuiViewport, pos: ImVec2): void {.cdecl, varargs.}
-    platform_GetWindowPos* {.importc: "Platform_GetWindowPos".}: proc(vp: ptr ImGuiViewport): ImVec2 {.cdecl, varargs.}
-    platform_SetWindowSize* {.importc: "Platform_SetWindowSize".}: proc(vp: ptr ImGuiViewport, size: ImVec2): void {.cdecl, varargs.}
-    platform_GetWindowSize* {.importc: "Platform_GetWindowSize".}: proc(vp: ptr ImGuiViewport): ImVec2 {.cdecl, varargs.}
-    platform_SetWindowFocus* {.importc: "Platform_SetWindowFocus".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
-    platform_GetWindowFocus* {.importc: "Platform_GetWindowFocus".}: proc(vp: ptr ImGuiViewport): bool {.cdecl, varargs.}
-    platform_GetWindowMinimized* {.importc: "Platform_GetWindowMinimized".}: proc(vp: ptr ImGuiViewport): bool {.cdecl, varargs.}
-    platform_SetWindowTitle* {.importc: "Platform_SetWindowTitle".}: proc(vp: ptr ImGuiViewport, str: cstring): void {.cdecl, varargs.}
-    platform_SetWindowAlpha* {.importc: "Platform_SetWindowAlpha".}: proc(vp: ptr ImGuiViewport, alpha: float32): void {.cdecl, varargs.}
-    platform_UpdateWindow* {.importc: "Platform_UpdateWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
-    platform_RenderWindow* {.importc: "Platform_RenderWindow".}: proc(vp: ptr ImGuiViewport, render_arg: pointer): void {.cdecl, varargs.}
-    platform_SwapBuffers* {.importc: "Platform_SwapBuffers".}: proc(vp: ptr ImGuiViewport, render_arg: pointer): void {.cdecl, varargs.}
-    platform_GetWindowDpiScale* {.importc: "Platform_GetWindowDpiScale".}: proc(vp: ptr ImGuiViewport): float32 {.cdecl, varargs.}
-    platform_OnChangedViewport* {.importc: "Platform_OnChangedViewport".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
-    platform_CreateVkSurface* {.importc: "Platform_CreateVkSurface".}: proc(vp: ptr ImGuiViewport, vk_inst: uint64, vk_allocators: pointer, out_vk_surface: ptr uint64): int32 {.cdecl, varargs.}
-    renderer_CreateWindow* {.importc: "Renderer_CreateWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
-    renderer_DestroyWindow* {.importc: "Renderer_DestroyWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
-    renderer_SetWindowSize* {.importc: "Renderer_SetWindowSize".}: proc(vp: ptr ImGuiViewport, size: ImVec2): void {.cdecl, varargs.}
-    renderer_RenderWindow* {.importc: "Renderer_RenderWindow".}: proc(vp: ptr ImGuiViewport, render_arg: pointer): void {.cdecl, varargs.}
-    renderer_SwapBuffers* {.importc: "Renderer_SwapBuffers".}: proc(vp: ptr ImGuiViewport, render_arg: pointer): void {.cdecl, varargs.}
-    monitors* {.importc: "Monitors".}: ImVector[ImGuiPlatformMonitor]
-    viewports* {.importc: "Viewports".}: ImVector[ptr ImGuiViewport]
-  ImGuiWindowDockStyle* {.importc: "ImGuiWindowDockStyle", imgui_header.} = object
-    colors* {.importc: "Colors".}: array[6, uint32]
-  ImGuiWindowClass* {.importc: "ImGuiWindowClass", imgui_header.} = object
-    classId* {.importc: "ClassId".}: ImGuiID
-    parentViewportId* {.importc: "ParentViewportId".}: ImGuiID
-    viewportFlagsOverrideSet* {.importc: "ViewportFlagsOverrideSet".}: ImGuiViewportFlags
-    viewportFlagsOverrideClear* {.importc: "ViewportFlagsOverrideClear".}: ImGuiViewportFlags
-    tabItemFlagsOverrideSet* {.importc: "TabItemFlagsOverrideSet".}: ImGuiTabItemFlags
-    dockNodeFlagsOverrideSet* {.importc: "DockNodeFlagsOverrideSet".}: ImGuiDockNodeFlags
-    dockingAlwaysTabBar* {.importc: "DockingAlwaysTabBar".}: bool
-    dockingAllowUnclassed* {.importc: "DockingAllowUnclassed".}: bool
-  ImGuiViewportP* {.importc: "ImGuiViewportP", imgui_header.} = object
-    imGuiViewport* {.importc: "_ImGuiViewport".}: ImGuiViewport
-    idx* {.importc: "Idx".}: int32
-    lastFrameActive* {.importc: "LastFrameActive".}: int32
-    lastFrontMostStampCount* {.importc: "LastFrontMostStampCount".}: int32
-    lastNameHash* {.importc: "LastNameHash".}: ImGuiID
-    lastPos* {.importc: "LastPos".}: ImVec2
-    alpha* {.importc: "Alpha".}: float32
-    lastAlpha* {.importc: "LastAlpha".}: float32
-    platformMonitor* {.importc: "PlatformMonitor".}: int16
-    window* {.importc: "Window".}: ptr ImGuiWindow
-    drawListsLastFrame* {.importc: "DrawListsLastFrame".}: array[2, int32]
-    drawLists* {.importc: "DrawLists".}: array[2, ptr ImDrawList]
-    drawDataP* {.importc: "DrawDataP".}: ImDrawData
-    drawDataBuilder* {.importc: "DrawDataBuilder".}: ImDrawDataBuilder
-    lastPlatformPos* {.importc: "LastPlatformPos".}: ImVec2
-    lastPlatformSize* {.importc: "LastPlatformSize".}: ImVec2
-    lastRendererSize* {.importc: "LastRendererSize".}: ImVec2
-    workOffsetMin* {.importc: "WorkOffsetMin".}: ImVec2
-    workOffsetMax* {.importc: "WorkOffsetMax".}: ImVec2
-    buildWorkOffsetMin* {.importc: "BuildWorkOffsetMin".}: ImVec2
-    buildWorkOffsetMax* {.importc: "BuildWorkOffsetMax".}: ImVec2
-  ImGuiWindowTempData* {.importc: "ImGuiWindowTempData", imgui_header.} = object
-    cursorPos* {.importc: "CursorPos".}: ImVec2
-    cursorPosPrevLine* {.importc: "CursorPosPrevLine".}: ImVec2
-    cursorStartPos* {.importc: "CursorStartPos".}: ImVec2
-    cursorMaxPos* {.importc: "CursorMaxPos".}: ImVec2
-    idealMaxPos* {.importc: "IdealMaxPos".}: ImVec2
-    currLineSize* {.importc: "CurrLineSize".}: ImVec2
-    prevLineSize* {.importc: "PrevLineSize".}: ImVec2
-    currLineTextBaseOffset* {.importc: "CurrLineTextBaseOffset".}: float32
-    prevLineTextBaseOffset* {.importc: "PrevLineTextBaseOffset".}: float32
-    isSameLine* {.importc: "IsSameLine".}: bool
-    isSetPos* {.importc: "IsSetPos".}: bool
-    indent* {.importc: "Indent".}: ImVec1
-    columnsOffset* {.importc: "ColumnsOffset".}: ImVec1
-    groupOffset* {.importc: "GroupOffset".}: ImVec1
-    cursorStartPosLossyness* {.importc: "CursorStartPosLossyness".}: ImVec2
-    navLayerCurrent* {.importc: "NavLayerCurrent".}: ImGuiNavLayer
-    navLayersActiveMask* {.importc: "NavLayersActiveMask".}: int16
-    navLayersActiveMaskNext* {.importc: "NavLayersActiveMaskNext".}: int16
-    navHideHighlightOneFrame* {.importc: "NavHideHighlightOneFrame".}: bool
-    navHasScroll* {.importc: "NavHasScroll".}: bool
-    menuBarAppending* {.importc: "MenuBarAppending".}: bool
-    menuBarOffset* {.importc: "MenuBarOffset".}: ImVec2
-    menuColumns* {.importc: "MenuColumns".}: ImGuiMenuColumns
-    treeDepth* {.importc: "TreeDepth".}: int32
-    treeJumpToParentOnPopMask* {.importc: "TreeJumpToParentOnPopMask".}: uint32
-    childWindows* {.importc: "ChildWindows".}: ImVector[ptr ImGuiWindow]
-    stateStorage* {.importc: "StateStorage".}: ptr ImGuiStorage
-    currentColumns* {.importc: "CurrentColumns".}: ptr ImGuiOldColumns
-    currentTableIdx* {.importc: "CurrentTableIdx".}: int32
-    layoutType* {.importc: "LayoutType".}: ImGuiLayoutType
-    parentLayoutType* {.importc: "ParentLayoutType".}: ImGuiLayoutType
-    itemWidth* {.importc: "ItemWidth".}: float32
-    textWrapPos* {.importc: "TextWrapPos".}: float32
-    itemWidthStack* {.importc: "ItemWidthStack".}: ImVector[float32]
-    textWrapPosStack* {.importc: "TextWrapPosStack".}: ImVector[float32]
-  ImGuiWindow* {.importc: "ImGuiWindow", imgui_header.} = object
-    name* {.importc: "Name".}: cstring
-    id* {.importc: "ID".}: ImGuiID
-    flags* {.importc: "Flags".}: ImGuiWindowFlags
-    flagsPreviousFrame* {.importc: "FlagsPreviousFrame".}: ImGuiWindowFlags
-    windowClass* {.importc: "WindowClass".}: ImGuiWindowClass
-    viewport* {.importc: "Viewport".}: ptr ImGuiViewportP
-    viewportId* {.importc: "ViewportId".}: ImGuiID
-    viewportPos* {.importc: "ViewportPos".}: ImVec2
-    viewportAllowPlatformMonitorExtend* {.importc: "ViewportAllowPlatformMonitorExtend".}: int32
-    pos* {.importc: "Pos".}: ImVec2
-    size* {.importc: "Size".}: ImVec2
-    sizeFull* {.importc: "SizeFull".}: ImVec2
-    contentSize* {.importc: "ContentSize".}: ImVec2
-    contentSizeIdeal* {.importc: "ContentSizeIdeal".}: ImVec2
-    contentSizeExplicit* {.importc: "ContentSizeExplicit".}: ImVec2
-    windowPadding* {.importc: "WindowPadding".}: ImVec2
-    windowRounding* {.importc: "WindowRounding".}: float32
-    windowBorderSize* {.importc: "WindowBorderSize".}: float32
-    nameBufLen* {.importc: "NameBufLen".}: int32
-    moveId* {.importc: "MoveId".}: ImGuiID
-    tabId* {.importc: "TabId".}: ImGuiID
-    childId* {.importc: "ChildId".}: ImGuiID
-    scroll* {.importc: "Scroll".}: ImVec2
-    scrollMax* {.importc: "ScrollMax".}: ImVec2
-    scrollTarget* {.importc: "ScrollTarget".}: ImVec2
-    scrollTargetCenterRatio* {.importc: "ScrollTargetCenterRatio".}: ImVec2
-    scrollTargetEdgeSnapDist* {.importc: "ScrollTargetEdgeSnapDist".}: ImVec2
-    scrollbarSizes* {.importc: "ScrollbarSizes".}: ImVec2
-    scrollbarX* {.importc: "ScrollbarX".}: bool
-    scrollbarY* {.importc: "ScrollbarY".}: bool
-    viewportOwned* {.importc: "ViewportOwned".}: bool
-    active* {.importc: "Active".}: bool
-    wasActive* {.importc: "WasActive".}: bool
-    writeAccessed* {.importc: "WriteAccessed".}: bool
-    collapsed* {.importc: "Collapsed".}: bool
-    wantCollapseToggle* {.importc: "WantCollapseToggle".}: bool
-    skipItems* {.importc: "SkipItems".}: bool
-    appearing* {.importc: "Appearing".}: bool
-    hidden* {.importc: "Hidden".}: bool
-    isFallbackWindow* {.importc: "IsFallbackWindow".}: bool
-    isExplicitChild* {.importc: "IsExplicitChild".}: bool
-    hasCloseButton* {.importc: "HasCloseButton".}: bool
-    resizeBorderHeld* {.importc: "ResizeBorderHeld".}: int8
-    beginCount* {.importc: "BeginCount".}: int16
-    beginCountPreviousFrame* {.importc: "BeginCountPreviousFrame".}: int16
-    beginOrderWithinParent* {.importc: "BeginOrderWithinParent".}: int16
-    beginOrderWithinContext* {.importc: "BeginOrderWithinContext".}: int16
-    focusOrder* {.importc: "FocusOrder".}: int16
-    popupId* {.importc: "PopupId".}: ImGuiID
-    autoFitFramesX* {.importc: "AutoFitFramesX".}: int8
-    autoFitFramesY* {.importc: "AutoFitFramesY".}: int8
-    autoFitChildAxises* {.importc: "AutoFitChildAxises".}: int8
-    autoFitOnlyGrows* {.importc: "AutoFitOnlyGrows".}: bool
-    autoPosLastDirection* {.importc: "AutoPosLastDirection".}: ImGuiDir
-    hiddenFramesCanSkipItems* {.importc: "HiddenFramesCanSkipItems".}: int8
-    hiddenFramesCannotSkipItems* {.importc: "HiddenFramesCannotSkipItems".}: int8
-    hiddenFramesForRenderOnly* {.importc: "HiddenFramesForRenderOnly".}: int8
-    disableInputsFrames* {.importc: "DisableInputsFrames".}: int8
-    setWindowPosAllowFlags* {.importc: "SetWindowPosAllowFlags".}: ImGuiCond
-    setWindowSizeAllowFlags* {.importc: "SetWindowSizeAllowFlags".}: ImGuiCond
-    setWindowCollapsedAllowFlags* {.importc: "SetWindowCollapsedAllowFlags".}: ImGuiCond
-    setWindowDockAllowFlags* {.importc: "SetWindowDockAllowFlags".}: ImGuiCond
-    setWindowPosVal* {.importc: "SetWindowPosVal".}: ImVec2
-    setWindowPosPivot* {.importc: "SetWindowPosPivot".}: ImVec2
-    iDStack* {.importc: "IDStack".}: ImVector[ImGuiID]
-    dc* {.importc: "DC".}: ImGuiWindowTempData
-    outerRectClipped* {.importc: "OuterRectClipped".}: ImRect
-    innerRect* {.importc: "InnerRect".}: ImRect
-    innerClipRect* {.importc: "InnerClipRect".}: ImRect
-    workRect* {.importc: "WorkRect".}: ImRect
-    parentWorkRect* {.importc: "ParentWorkRect".}: ImRect
-    clipRect* {.importc: "ClipRect".}: ImRect
-    contentRegionRect* {.importc: "ContentRegionRect".}: ImRect
-    hitTestHoleSize* {.importc: "HitTestHoleSize".}: ImVec2ih
-    hitTestHoleOffset* {.importc: "HitTestHoleOffset".}: ImVec2ih
-    lastFrameActive* {.importc: "LastFrameActive".}: int32
-    lastFrameJustFocused* {.importc: "LastFrameJustFocused".}: int32
-    lastTimeActive* {.importc: "LastTimeActive".}: float32
-    itemWidthDefault* {.importc: "ItemWidthDefault".}: float32
-    stateStorage* {.importc: "StateStorage".}: ImGuiStorage
-    # columnsStorage* {.importc: "ColumnsStorage".}: ImVector[ImGuiOldColumns]
-    fontWindowScale* {.importc: "FontWindowScale".}: float32
-    fontDpiScale* {.importc: "FontDpiScale".}: float32
-    settingsOffset* {.importc: "SettingsOffset".}: int32
-    drawList* {.importc: "DrawList".}: ptr ImDrawList
-    drawListInst* {.importc: "DrawListInst".}: ImDrawList
-    parentWindow* {.importc: "ParentWindow".}: ptr ImGuiWindow
-    parentWindowInBeginStack* {.importc: "ParentWindowInBeginStack".}: ptr ImGuiWindow
-    rootWindow* {.importc: "RootWindow".}: ptr ImGuiWindow
-    rootWindowPopupTree* {.importc: "RootWindowPopupTree".}: ptr ImGuiWindow
-    rootWindowDockTree* {.importc: "RootWindowDockTree".}: ptr ImGuiWindow
-    rootWindowForTitleBarHighlight* {.importc: "RootWindowForTitleBarHighlight".}: ptr ImGuiWindow
-    rootWindowForNav* {.importc: "RootWindowForNav".}: ptr ImGuiWindow
-    navLastChildNavWindow* {.importc: "NavLastChildNavWindow".}: ptr ImGuiWindow
-    navLastIds* {.importc: "NavLastIds".}: array[2, ImGuiID]
-    navRectRel* {.importc: "NavRectRel".}: array[2, ImRect]
-    navRootFocusScopeId* {.importc: "NavRootFocusScopeId".}: ImGuiID
-    memoryDrawListIdxCapacity* {.importc: "MemoryDrawListIdxCapacity".}: int32
-    memoryDrawListVtxCapacity* {.importc: "MemoryDrawListVtxCapacity".}: int32
-    memoryCompacted* {.importc: "MemoryCompacted".}: bool
-    dockIsActive* {.importc: "DockIsActive".}: bool
-    dockNodeIsVisible* {.importc: "DockNodeIsVisible".}: bool
-    dockTabIsVisible* {.importc: "DockTabIsVisible".}: bool
-    dockTabWantClose* {.importc: "DockTabWantClose".}: bool
-    dockOrder* {.importc: "DockOrder".}: int16
-    dockStyle* {.importc: "DockStyle".}: ImGuiWindowDockStyle
-    dockNode* {.importc: "DockNode".}: ptr ImGuiDockNode
-    dockNodeAsHost* {.importc: "DockNodeAsHost".}: ptr ImGuiDockNode
-    dockId* {.importc: "DockId".}: ImGuiID
-    dockTabItemStatusFlags* {.importc: "DockTabItemStatusFlags".}: ImGuiItemStatusFlags
-    dockTabItemRect* {.importc: "DockTabItemRect".}: ImRect
   ImGuiContext* {.importc: "ImGuiContext", imgui_header.} = object
     initialized* {.importc: "Initialized".}: bool
     fontAtlasOwnedByContext* {.importc: "FontAtlasOwnedByContext".}: bool
@@ -1582,11 +1316,11 @@ type
     dragDropPayloadBufHeap* {.importc: "DragDropPayloadBufHeap".}: ImVector[uint8]
     dragDropPayloadBufLocal* {.importc: "DragDropPayloadBufLocal".}: array[16, uint8]
     clipperTempDataStacked* {.importc: "ClipperTempDataStacked".}: int32
-    # clipperTempData* {.importc: "ClipperTempData".}: ImVector[ImGuiListClipperData]
+    clipperTempData* {.importc: "ClipperTempData".}: ImVector[ImGuiListClipperData]
     currentTable* {.importc: "CurrentTable".}: ptr ImGuiTable
     tablesTempDataStacked* {.importc: "TablesTempDataStacked".}: int32
-    # tablesTempData* {.importc: "TablesTempData".}: ImVector[ImGuiTableTempData]
-    # tables* {.importc: "Tables".}: ImVector[ImGuiTable]
+    tablesTempData* {.importc: "TablesTempData".}: ImVector[ImGuiTableTempData]
+    tables* {.importc: "Tables".}: ImVector[ImGuiTable]
     tablesLastTimeActive* {.importc: "TablesLastTimeActive".}: ImVector[float32]
     drawChannelsTempMergeBuffer* {.importc: "DrawChannelsTempMergeBuffer".}: ImVector[ImDrawChannel]
     currentTabBar* {.importc: "CurrentTabBar".}: ptr ImGuiTabBar
@@ -1677,8 +1411,8 @@ type
     data* {.importc: "Data".}: array[8, uint8]
   ImGuiDockContext* {.importc: "ImGuiDockContext", imgui_header.} = object
     nodes* {.importc: "Nodes".}: ImGuiStorage
-    # requests* {.importc: "Requests".}: ImVector[ImGuiDockRequest]
-    # nodesSettings* {.importc: "NodesSettings".}: ImVector[ImGuiDockNodeSettings]
+    requests* {.importc: "Requests".}: ImVector[ImGuiDockRequest]
+    nodesSettings* {.importc: "NodesSettings".}: ImVector[ImGuiDockNodeSettings]
     wantFullRebuild* {.importc: "WantFullRebuild".}: bool
   ImGuiDockNode* {.importc: "ImGuiDockNode", imgui_header.} = object
     id* {.importc: "ID".}: ImGuiID
@@ -1809,7 +1543,7 @@ type
     keyAlt* {.importc: "KeyAlt".}: bool
     keySuper* {.importc: "KeySuper".}: bool
     keyMods* {.importc: "KeyMods".}: ImGuiKeyChord
-    # keysData* {.importc: "KeysData".}: array[ImGuiKey_KeysData_SIZE, ImGuiKeyData]
+    keysData* {.importc: "KeysData".}: array[652, ImGuiKeyData]
     wantCaptureMouseUnlessPopupClose* {.importc: "WantCaptureMouseUnlessPopupClose".}: bool
     mousePosPrev* {.importc: "MousePosPrev".}: ImVec2
     mouseClickedPos* {.importc: "MouseClickedPos".}: array[5, ImVec2]
@@ -1835,6 +1569,7 @@ type
   ImGuiInputEvent* {.importc: "ImGuiInputEvent", imgui_header.} = object
     `type`* {.importc: "`type`".}: ImGuiInputEventType
     source* {.importc: "Source".}: ImGuiInputSource
+    #* {.importc: "".}: union{ImGuiInputEventMousePosMousePos;ImGuiInputEventMouseWheelMouseWheel;ImGuiInputEventMouseButtonMouseButton;ImGuiInputEventMouseViewportMouseViewport;ImGuiInputEventKeyKey;ImGuiInputEventTextText;ImGuiInputEventAppFocusedAppFocused;}
     addedByTestEngine* {.importc: "AddedByTestEngine".}: bool
   ImGuiInputEventAppFocused* {.importc: "ImGuiInputEventAppFocused", imgui_header.} = object
     focused* {.importc: "Focused".}: bool
@@ -1855,6 +1590,19 @@ type
     wheelY* {.importc: "WheelY".}: float32
   ImGuiInputEventText* {.importc: "ImGuiInputEventText", imgui_header.} = object
     char* {.importc: "Char".}: uint32
+  ImGuiInputTextCallbackData* {.importc: "ImGuiInputTextCallbackData", imgui_header.} = object
+    eventFlag* {.importc: "EventFlag".}: ImGuiInputTextFlags
+    flags* {.importc: "Flags".}: ImGuiInputTextFlags
+    userData* {.importc: "UserData".}: pointer
+    eventChar* {.importc: "EventChar".}: ImWchar
+    eventKey* {.importc: "EventKey".}: ImGuiKey
+    buf* {.importc: "Buf".}: cstring
+    bufTextLen* {.importc: "BufTextLen".}: int32
+    bufSize* {.importc: "BufSize".}: int32
+    bufDirty* {.importc: "BufDirty".}: bool
+    cursorPos* {.importc: "CursorPos".}: int32
+    selectionStart* {.importc: "SelectionStart".}: int32
+    selectionEnd* {.importc: "SelectionEnd".}: int32
   ImGuiInputTextState* {.importc: "ImGuiInputTextState", imgui_header.} = object
     id* {.importc: "ID".}: ImGuiID
     curLenW* {.importc: "CurLenW".}: int32
@@ -1905,18 +1653,8 @@ type
     itemsHeight* {.importc: "ItemsHeight".}: float32
     startPosY* {.importc: "StartPosY".}: float32
     tempData* {.importc: "TempData".}: pointer
-  ImGuiListClipperData* {.importc: "ImGuiListClipperData", imgui_header.} = object
-    listClipper* {.importc: "ListClipper".}: ptr ImGuiListClipper
-    lossynessOffset* {.importc: "LossynessOffset".}: float32
-    stepNo* {.importc: "StepNo".}: int32
-    itemsFrozen* {.importc: "ItemsFrozen".}: int32
-    # ranges* {.importc: "Ranges".}: ImVector[ImGuiListClipperRange]
-  ImGuiListClipperRange* {.importc: "ImGuiListClipperRange", imgui_header.} = object
-    min* {.importc: "Min".}: int32
-    max* {.importc: "Max".}: int32
-    posToIndexConvert* {.importc: "PosToIndexConvert".}: bool
-    posToIndexOffsetMin* {.importc: "PosToIndexOffsetMin".}: int8
-    posToIndexOffsetMax* {.importc: "PosToIndexOffsetMax".}: int8
+  ImGuiListClipperData* {.importc: "ImGuiListClipperData", imgui_header.} = ptr object
+  ImGuiListClipperRange* {.importc: "ImGuiListClipperRange", imgui_header.} = ptr object
   ImGuiLocEntry* {.importc: "ImGuiLocEntry", imgui_header.} = object
     key* {.importc: "Key".}: ImGuiLocKey
     text* {.importc: "Text".}: cstring
@@ -1981,24 +1719,7 @@ type
     offsetNormBeforeResize* {.importc: "OffsetNormBeforeResize".}: float32
     flags* {.importc: "Flags".}: ImGuiOldColumnFlags
     clipRect* {.importc: "ClipRect".}: ImRect
-  ImGuiOldColumns* {.importc: "ImGuiOldColumns", imgui_header.} = object
-    id* {.importc: "ID".}: ImGuiID
-    flags* {.importc: "Flags".}: ImGuiOldColumnFlags
-    isFirstFrame* {.importc: "IsFirstFrame".}: bool
-    isBeingResized* {.importc: "IsBeingResized".}: bool
-    current* {.importc: "Current".}: int32
-    count* {.importc: "Count".}: int32
-    offMinX* {.importc: "OffMinX".}: float32
-    offMaxX* {.importc: "OffMaxX".}: float32
-    lineMinY* {.importc: "LineMinY".}: float32
-    lineMaxY* {.importc: "LineMaxY".}: float32
-    hostCursorPosY* {.importc: "HostCursorPosY".}: float32
-    hostCursorMaxPosX* {.importc: "HostCursorMaxPosX".}: float32
-    hostInitialClipRect* {.importc: "HostInitialClipRect".}: ImRect
-    hostBackupClipRect* {.importc: "HostBackupClipRect".}: ImRect
-    hostBackupParentWorkRect* {.importc: "HostBackupParentWorkRect".}: ImRect
-    columns* {.importc: "Columns".}: ImVector[ImGuiOldColumnData]
-    splitter* {.importc: "Splitter".}: ImDrawListSplitter
+  ImGuiOldColumns* {.importc: "ImGuiOldColumns", imgui_header.} = ptr object
   ImGuiOnceUponAFrame* {.importc: "ImGuiOnceUponAFrame", imgui_header.} = object
     refFrame* {.importc: "RefFrame".}: int32
   ImGuiPayload* {.importc: "ImGuiPayload", imgui_header.} = object
@@ -2010,10 +1731,42 @@ type
     dataType* {.importc: "DataType".}: array[32+1, int8]
     preview* {.importc: "Preview".}: bool
     delivery* {.importc: "Delivery".}: bool
+  ImGuiPlatformIO* {.importc: "ImGuiPlatformIO", imgui_header.} = object
+    platform_CreateWindow* {.importc: "Platform_CreateWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
+    platform_DestroyWindow* {.importc: "Platform_DestroyWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
+    platform_ShowWindow* {.importc: "Platform_ShowWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
+    platform_SetWindowPos* {.importc: "Platform_SetWindowPos".}: proc(vp: ptr ImGuiViewport, pos: ImVec2): void {.cdecl, varargs.}
+    platform_GetWindowPos* {.importc: "Platform_GetWindowPos".}: proc(vp: ptr ImGuiViewport): ImVec2 {.cdecl, varargs.}
+    platform_SetWindowSize* {.importc: "Platform_SetWindowSize".}: proc(vp: ptr ImGuiViewport, size: ImVec2): void {.cdecl, varargs.}
+    platform_GetWindowSize* {.importc: "Platform_GetWindowSize".}: proc(vp: ptr ImGuiViewport): ImVec2 {.cdecl, varargs.}
+    platform_SetWindowFocus* {.importc: "Platform_SetWindowFocus".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
+    platform_GetWindowFocus* {.importc: "Platform_GetWindowFocus".}: proc(vp: ptr ImGuiViewport): bool {.cdecl, varargs.}
+    platform_GetWindowMinimized* {.importc: "Platform_GetWindowMinimized".}: proc(vp: ptr ImGuiViewport): bool {.cdecl, varargs.}
+    platform_SetWindowTitle* {.importc: "Platform_SetWindowTitle".}: proc(vp: ptr ImGuiViewport, str: cstring): void {.cdecl, varargs.}
+    platform_SetWindowAlpha* {.importc: "Platform_SetWindowAlpha".}: proc(vp: ptr ImGuiViewport, alpha: float32): void {.cdecl, varargs.}
+    platform_UpdateWindow* {.importc: "Platform_UpdateWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
+    platform_RenderWindow* {.importc: "Platform_RenderWindow".}: proc(vp: ptr ImGuiViewport, render_arg: pointer): void {.cdecl, varargs.}
+    platform_SwapBuffers* {.importc: "Platform_SwapBuffers".}: proc(vp: ptr ImGuiViewport, render_arg: pointer): void {.cdecl, varargs.}
+    platform_GetWindowDpiScale* {.importc: "Platform_GetWindowDpiScale".}: proc(vp: ptr ImGuiViewport): float32 {.cdecl, varargs.}
+    platform_OnChangedViewport* {.importc: "Platform_OnChangedViewport".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
+    platform_CreateVkSurface* {.importc: "Platform_CreateVkSurface".}: proc(vp: ptr ImGuiViewport, vk_inst: uint64, vk_allocators: pointer, out_vk_surface: ptr uint64): int32 {.cdecl, varargs.}
+    renderer_CreateWindow* {.importc: "Renderer_CreateWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
+    renderer_DestroyWindow* {.importc: "Renderer_DestroyWindow".}: proc(vp: ptr ImGuiViewport): void {.cdecl, varargs.}
+    renderer_SetWindowSize* {.importc: "Renderer_SetWindowSize".}: proc(vp: ptr ImGuiViewport, size: ImVec2): void {.cdecl, varargs.}
+    renderer_RenderWindow* {.importc: "Renderer_RenderWindow".}: proc(vp: ptr ImGuiViewport, render_arg: pointer): void {.cdecl, varargs.}
+    renderer_SwapBuffers* {.importc: "Renderer_SwapBuffers".}: proc(vp: ptr ImGuiViewport, render_arg: pointer): void {.cdecl, varargs.}
+    monitors* {.importc: "Monitors".}: ImVector[ImGuiPlatformMonitor]
+    viewports* {.importc: "Viewports".}: ImVector[ptr ImGuiViewport]
   ImGuiPlatformImeData* {.importc: "ImGuiPlatformImeData", imgui_header.} = object
     wantVisible* {.importc: "WantVisible".}: bool
     inputPos* {.importc: "InputPos".}: ImVec2
     inputLineHeight* {.importc: "InputLineHeight".}: float32
+  ImGuiPlatformMonitor* {.importc: "ImGuiPlatformMonitor", imgui_header.} = object
+    mainPos* {.importc: "MainPos".}: ImVec2
+    mainSize* {.importc: "MainSize".}: ImVec2
+    workPos* {.importc: "WorkPos".}: ImVec2
+    workSize* {.importc: "WorkSize".}: ImVec2
+    dpiScale* {.importc: "DpiScale".}: float32
   ImGuiPopupData* {.importc: "ImGuiPopupData", imgui_header.} = object
     popupId* {.importc: "PopupId".}: ImGuiID
     window* {.importc: "Window".}: ptr ImGuiWindow
@@ -2040,6 +1793,11 @@ type
     index* {.importc: "Index".}: int32
     width* {.importc: "Width".}: float32
     initialWidth* {.importc: "InitialWidth".}: float32
+  ImGuiSizeCallbackData* {.importc: "ImGuiSizeCallbackData", imgui_header.} = object
+    userData* {.importc: "UserData".}: pointer
+    pos* {.importc: "Pos".}: ImVec2
+    currentSize* {.importc: "CurrentSize".}: ImVec2
+    desiredSize* {.importc: "DesiredSize".}: ImVec2
   ImGuiStackLevelInfo* {.importc: "ImGuiStackLevelInfo", imgui_header.} = object
     id* {.importc: "ID".}: ImGuiID
     queryFrameCount* {.importc: "QueryFrameCount".}: int8
@@ -2153,111 +1911,7 @@ type
     beginOrder* {.importc: "BeginOrder".}: int16
     indexDuringLayout* {.importc: "IndexDuringLayout".}: int16
     wantClose* {.importc: "WantClose".}: bool
-  ImGuiTable* {.importc: "ImGuiTable", imgui_header.} = object
-    id* {.importc: "ID".}: ImGuiID
-    flags* {.importc: "Flags".}: ImGuiTableFlags
-    rawData* {.importc: "RawData".}: pointer
-    # tempData* {.importc: "TempData".}: ptr ImGuiTableTempData
-    columns* {.importc: "Columns".}: ImVector[ImGuiTableColumn]
-    displayOrderToIndex* {.importc: "DisplayOrderToIndex".}: ImVector[ImGuiTableColumnIdx]
-    rowCellData* {.importc: "RowCellData".}: ImVector[ImGuiTableCellData]
-    enabledMaskByDisplayOrder* {.importc: "EnabledMaskByDisplayOrder".}: uint64
-    enabledMaskByIndex* {.importc: "EnabledMaskByIndex".}: uint64
-    visibleMaskByIndex* {.importc: "VisibleMaskByIndex".}: uint64
-    requestOutputMaskByIndex* {.importc: "RequestOutputMaskByIndex".}: uint64
-    settingsLoadedFlags* {.importc: "SettingsLoadedFlags".}: ImGuiTableFlags
-    settingsOffset* {.importc: "SettingsOffset".}: int32
-    lastFrameActive* {.importc: "LastFrameActive".}: int32
-    columnsCount* {.importc: "ColumnsCount".}: int32
-    currentRow* {.importc: "CurrentRow".}: int32
-    currentColumn* {.importc: "CurrentColumn".}: int32
-    instanceCurrent* {.importc: "InstanceCurrent".}: int16
-    instanceInteracted* {.importc: "InstanceInteracted".}: int16
-    rowPosY1* {.importc: "RowPosY1".}: float32
-    rowPosY2* {.importc: "RowPosY2".}: float32
-    rowMinHeight* {.importc: "RowMinHeight".}: float32
-    rowTextBaseline* {.importc: "RowTextBaseline".}: float32
-    rowIndentOffsetX* {.importc: "RowIndentOffsetX".}: float32
-    rowFlags* {.importc: "RowFlags".}: ImGuiTableRowFlags
-    lastRowFlags* {.importc: "LastRowFlags".}: ImGuiTableRowFlags
-    rowBgColorCounter* {.importc: "RowBgColorCounter".}: int32
-    rowBgColor* {.importc: "RowBgColor".}: array[2, uint32]
-    borderColorStrong* {.importc: "BorderColorStrong".}: uint32
-    borderColorLight* {.importc: "BorderColorLight".}: uint32
-    borderX1* {.importc: "BorderX1".}: float32
-    borderX2* {.importc: "BorderX2".}: float32
-    hostIndentX* {.importc: "HostIndentX".}: float32
-    minColumnWidth* {.importc: "MinColumnWidth".}: float32
-    outerPaddingX* {.importc: "OuterPaddingX".}: float32
-    cellPaddingX* {.importc: "CellPaddingX".}: float32
-    cellPaddingY* {.importc: "CellPaddingY".}: float32
-    cellSpacingX1* {.importc: "CellSpacingX1".}: float32
-    cellSpacingX2* {.importc: "CellSpacingX2".}: float32
-    innerWidth* {.importc: "InnerWidth".}: float32
-    columnsGivenWidth* {.importc: "ColumnsGivenWidth".}: float32
-    columnsAutoFitWidth* {.importc: "ColumnsAutoFitWidth".}: float32
-    columnsStretchSumWeights* {.importc: "ColumnsStretchSumWeights".}: float32
-    resizedColumnNextWidth* {.importc: "ResizedColumnNextWidth".}: float32
-    resizeLockMinContentsX2* {.importc: "ResizeLockMinContentsX2".}: float32
-    refScale* {.importc: "RefScale".}: float32
-    outerRect* {.importc: "OuterRect".}: ImRect
-    innerRect* {.importc: "InnerRect".}: ImRect
-    workRect* {.importc: "WorkRect".}: ImRect
-    innerClipRect* {.importc: "InnerClipRect".}: ImRect
-    bgClipRect* {.importc: "BgClipRect".}: ImRect
-    bg0ClipRectForDrawCmd* {.importc: "Bg0ClipRectForDrawCmd".}: ImRect
-    bg2ClipRectForDrawCmd* {.importc: "Bg2ClipRectForDrawCmd".}: ImRect
-    hostClipRect* {.importc: "HostClipRect".}: ImRect
-    hostBackupInnerClipRect* {.importc: "HostBackupInnerClipRect".}: ImRect
-    outerWindow* {.importc: "OuterWindow".}: ptr ImGuiWindow
-    innerWindow* {.importc: "InnerWindow".}: ptr ImGuiWindow
-    columnsNames* {.importc: "ColumnsNames".}: ImGuiTextBuffer
-    drawSplitter* {.importc: "DrawSplitter".}: ptr ImDrawListSplitter
-    instanceDataFirst* {.importc: "InstanceDataFirst".}: ImGuiTableInstanceData
-    instanceDataExtra* {.importc: "InstanceDataExtra".}: ImVector[ImGuiTableInstanceData]
-    sortSpecsSingle* {.importc: "SortSpecsSingle".}: ImGuiTableColumnSortSpecs
-    sortSpecsMulti* {.importc: "SortSpecsMulti".}: ImVector[ImGuiTableColumnSortSpecs]
-    sortSpecs* {.importc: "SortSpecs".}: ImGuiTableSortSpecs
-    sortSpecsCount* {.importc: "SortSpecsCount".}: ImGuiTableColumnIdx
-    columnsEnabledCount* {.importc: "ColumnsEnabledCount".}: ImGuiTableColumnIdx
-    columnsEnabledFixedCount* {.importc: "ColumnsEnabledFixedCount".}: ImGuiTableColumnIdx
-    declColumnsCount* {.importc: "DeclColumnsCount".}: ImGuiTableColumnIdx
-    hoveredColumnBody* {.importc: "HoveredColumnBody".}: ImGuiTableColumnIdx
-    hoveredColumnBorder* {.importc: "HoveredColumnBorder".}: ImGuiTableColumnIdx
-    autoFitSingleColumn* {.importc: "AutoFitSingleColumn".}: ImGuiTableColumnIdx
-    resizedColumn* {.importc: "ResizedColumn".}: ImGuiTableColumnIdx
-    lastResizedColumn* {.importc: "LastResizedColumn".}: ImGuiTableColumnIdx
-    heldHeaderColumn* {.importc: "HeldHeaderColumn".}: ImGuiTableColumnIdx
-    reorderColumn* {.importc: "ReorderColumn".}: ImGuiTableColumnIdx
-    reorderColumnDir* {.importc: "ReorderColumnDir".}: ImGuiTableColumnIdx
-    leftMostEnabledColumn* {.importc: "LeftMostEnabledColumn".}: ImGuiTableColumnIdx
-    rightMostEnabledColumn* {.importc: "RightMostEnabledColumn".}: ImGuiTableColumnIdx
-    leftMostStretchedColumn* {.importc: "LeftMostStretchedColumn".}: ImGuiTableColumnIdx
-    rightMostStretchedColumn* {.importc: "RightMostStretchedColumn".}: ImGuiTableColumnIdx
-    contextPopupColumn* {.importc: "ContextPopupColumn".}: ImGuiTableColumnIdx
-    freezeRowsRequest* {.importc: "FreezeRowsRequest".}: ImGuiTableColumnIdx
-    freezeRowsCount* {.importc: "FreezeRowsCount".}: ImGuiTableColumnIdx
-    freezeColumnsRequest* {.importc: "FreezeColumnsRequest".}: ImGuiTableColumnIdx
-    freezeColumnsCount* {.importc: "FreezeColumnsCount".}: ImGuiTableColumnIdx
-    rowCellDataCurrent* {.importc: "RowCellDataCurrent".}: ImGuiTableColumnIdx
-    dummyDrawChannel* {.importc: "DummyDrawChannel".}: ImGuiTableDrawChannelIdx
-    bg2DrawChannelCurrent* {.importc: "Bg2DrawChannelCurrent".}: ImGuiTableDrawChannelIdx
-    bg2DrawChannelUnfrozen* {.importc: "Bg2DrawChannelUnfrozen".}: ImGuiTableDrawChannelIdx
-    isLayoutLocked* {.importc: "IsLayoutLocked".}: bool
-    isInsideRow* {.importc: "IsInsideRow".}: bool
-    isInitializing* {.importc: "IsInitializing".}: bool
-    isSortSpecsDirty* {.importc: "IsSortSpecsDirty".}: bool
-    isUsingHeaders* {.importc: "IsUsingHeaders".}: bool
-    isContextPopupOpen* {.importc: "IsContextPopupOpen".}: bool
-    isSettingsRequestLoad* {.importc: "IsSettingsRequestLoad".}: bool
-    isSettingsDirty* {.importc: "IsSettingsDirty".}: bool
-    isDefaultDisplayOrder* {.importc: "IsDefaultDisplayOrder".}: bool
-    isResetAllRequest* {.importc: "IsResetAllRequest".}: bool
-    isResetDisplayOrderRequest* {.importc: "IsResetDisplayOrderRequest".}: bool
-    isUnfrozenRows* {.importc: "IsUnfrozenRows".}: bool
-    isDefaultSizingPolicy* {.importc: "IsDefaultSizingPolicy".}: bool
-    memoryCompacted* {.importc: "MemoryCompacted".}: bool
-    hostSkipItems* {.importc: "HostSkipItems".}: bool
+  ImGuiTable* {.importc: "ImGuiTable", imgui_header.} = ptr object
   ImGuiTableCellData* {.importc: "ImGuiTableCellData", imgui_header.} = object
     bgColor* {.importc: "BgColor".}: uint32
     column* {.importc: "Column".}: ImGuiTableColumnIdx
@@ -2331,19 +1985,7 @@ type
     specs* {.importc: "Specs".}: ptr ImGuiTableColumnSortSpecs
     specsCount* {.importc: "SpecsCount".}: int32
     specsDirty* {.importc: "SpecsDirty".}: bool
-  ImGuiTableTempData* {.importc: "ImGuiTableTempData", imgui_header.} = object
-    tableIndex* {.importc: "TableIndex".}: int32
-    lastTimeActive* {.importc: "LastTimeActive".}: float32
-    userOuterSize* {.importc: "UserOuterSize".}: ImVec2
-    drawSplitter* {.importc: "DrawSplitter".}: ImDrawListSplitter
-    hostBackupWorkRect* {.importc: "HostBackupWorkRect".}: ImRect
-    hostBackupParentWorkRect* {.importc: "HostBackupParentWorkRect".}: ImRect
-    hostBackupPrevLineSize* {.importc: "HostBackupPrevLineSize".}: ImVec2
-    hostBackupCurrLineSize* {.importc: "HostBackupCurrLineSize".}: ImVec2
-    hostBackupCursorMaxPos* {.importc: "HostBackupCursorMaxPos".}: ImVec2
-    hostBackupColumnsOffset* {.importc: "HostBackupColumnsOffset".}: ImVec1
-    hostBackupItemWidth* {.importc: "HostBackupItemWidth".}: float32
-    hostBackupItemWidthStackSize* {.importc: "HostBackupItemWidthStackSize".}: int32
+  ImGuiTableTempData* {.importc: "ImGuiTableTempData", imgui_header.} = ptr object
   ImGuiTextBuffer* {.importc: "ImGuiTextBuffer", imgui_header.} = object
     buf* {.importc: "Buf".}: ImVector[int8]
   ImGuiTextFilter* {.importc: "ImGuiTextFilter", imgui_header.} = object
@@ -2356,6 +1998,169 @@ type
   ImGuiTextRange* {.importc: "ImGuiTextRange", imgui_header.} = object
     b* {.importc: "b".}: cstring
     e* {.importc: "e".}: cstring
+  ImGuiViewport* {.importc: "ImGuiViewport", imgui_header.} = object
+    id* {.importc: "ID".}: ImGuiID
+    flags* {.importc: "Flags".}: ImGuiViewportFlags
+    pos* {.importc: "Pos".}: ImVec2
+    size* {.importc: "Size".}: ImVec2
+    workPos* {.importc: "WorkPos".}: ImVec2
+    workSize* {.importc: "WorkSize".}: ImVec2
+    dpiScale* {.importc: "DpiScale".}: float32
+    parentViewportId* {.importc: "ParentViewportId".}: ImGuiID
+    drawData* {.importc: "DrawData".}: ptr ImDrawData
+    rendererUserData* {.importc: "RendererUserData".}: pointer
+    platformUserData* {.importc: "PlatformUserData".}: pointer
+    platformHandle* {.importc: "PlatformHandle".}: pointer
+    platformHandleRaw* {.importc: "PlatformHandleRaw".}: pointer
+    platformWindowCreated* {.importc: "PlatformWindowCreated".}: bool
+    platformRequestMove* {.importc: "PlatformRequestMove".}: bool
+    platformRequestResize* {.importc: "PlatformRequestResize".}: bool
+    platformRequestClose* {.importc: "PlatformRequestClose".}: bool
+  ImGuiViewportP* {.importc: "ImGuiViewportP", imgui_header.} = object
+    imGuiViewport* {.importc: "_ImGuiViewport".}: ImGuiViewport
+    idx* {.importc: "Idx".}: int32
+    lastFrameActive* {.importc: "LastFrameActive".}: int32
+    lastFrontMostStampCount* {.importc: "LastFrontMostStampCount".}: int32
+    lastNameHash* {.importc: "LastNameHash".}: ImGuiID
+    lastPos* {.importc: "LastPos".}: ImVec2
+    alpha* {.importc: "Alpha".}: float32
+    lastAlpha* {.importc: "LastAlpha".}: float32
+    platformMonitor* {.importc: "PlatformMonitor".}: int16
+    window* {.importc: "Window".}: ptr ImGuiWindow
+    drawListsLastFrame* {.importc: "DrawListsLastFrame".}: array[2, int32]
+    drawLists* {.importc: "DrawLists".}: array[2, ptr ImDrawList]
+    drawDataP* {.importc: "DrawDataP".}: ImDrawData
+    drawDataBuilder* {.importc: "DrawDataBuilder".}: ImDrawDataBuilder
+    lastPlatformPos* {.importc: "LastPlatformPos".}: ImVec2
+    lastPlatformSize* {.importc: "LastPlatformSize".}: ImVec2
+    lastRendererSize* {.importc: "LastRendererSize".}: ImVec2
+    workOffsetMin* {.importc: "WorkOffsetMin".}: ImVec2
+    workOffsetMax* {.importc: "WorkOffsetMax".}: ImVec2
+    buildWorkOffsetMin* {.importc: "BuildWorkOffsetMin".}: ImVec2
+    buildWorkOffsetMax* {.importc: "BuildWorkOffsetMax".}: ImVec2
+  ImGuiWindow* {.importc: "ImGuiWindow", imgui_header.} = object
+    name* {.importc: "Name".}: cstring
+    id* {.importc: "ID".}: ImGuiID
+    flags* {.importc: "Flags".}: ImGuiWindowFlags
+    flagsPreviousFrame* {.importc: "FlagsPreviousFrame".}: ImGuiWindowFlags
+    windowClass* {.importc: "WindowClass".}: ImGuiWindowClass
+    viewport* {.importc: "Viewport".}: ptr ImGuiViewportP
+    viewportId* {.importc: "ViewportId".}: ImGuiID
+    viewportPos* {.importc: "ViewportPos".}: ImVec2
+    viewportAllowPlatformMonitorExtend* {.importc: "ViewportAllowPlatformMonitorExtend".}: int32
+    pos* {.importc: "Pos".}: ImVec2
+    size* {.importc: "Size".}: ImVec2
+    sizeFull* {.importc: "SizeFull".}: ImVec2
+    contentSize* {.importc: "ContentSize".}: ImVec2
+    contentSizeIdeal* {.importc: "ContentSizeIdeal".}: ImVec2
+    contentSizeExplicit* {.importc: "ContentSizeExplicit".}: ImVec2
+    windowPadding* {.importc: "WindowPadding".}: ImVec2
+    windowRounding* {.importc: "WindowRounding".}: float32
+    windowBorderSize* {.importc: "WindowBorderSize".}: float32
+    nameBufLen* {.importc: "NameBufLen".}: int32
+    moveId* {.importc: "MoveId".}: ImGuiID
+    tabId* {.importc: "TabId".}: ImGuiID
+    childId* {.importc: "ChildId".}: ImGuiID
+    scroll* {.importc: "Scroll".}: ImVec2
+    scrollMax* {.importc: "ScrollMax".}: ImVec2
+    scrollTarget* {.importc: "ScrollTarget".}: ImVec2
+    scrollTargetCenterRatio* {.importc: "ScrollTargetCenterRatio".}: ImVec2
+    scrollTargetEdgeSnapDist* {.importc: "ScrollTargetEdgeSnapDist".}: ImVec2
+    scrollbarSizes* {.importc: "ScrollbarSizes".}: ImVec2
+    scrollbarX* {.importc: "ScrollbarX".}: bool
+    scrollbarY* {.importc: "ScrollbarY".}: bool
+    viewportOwned* {.importc: "ViewportOwned".}: bool
+    active* {.importc: "Active".}: bool
+    wasActive* {.importc: "WasActive".}: bool
+    writeAccessed* {.importc: "WriteAccessed".}: bool
+    collapsed* {.importc: "Collapsed".}: bool
+    wantCollapseToggle* {.importc: "WantCollapseToggle".}: bool
+    skipItems* {.importc: "SkipItems".}: bool
+    appearing* {.importc: "Appearing".}: bool
+    hidden* {.importc: "Hidden".}: bool
+    isFallbackWindow* {.importc: "IsFallbackWindow".}: bool
+    isExplicitChild* {.importc: "IsExplicitChild".}: bool
+    hasCloseButton* {.importc: "HasCloseButton".}: bool
+    resizeBorderHeld* {.importc: "ResizeBorderHeld".}: int8
+    beginCount* {.importc: "BeginCount".}: int16
+    beginCountPreviousFrame* {.importc: "BeginCountPreviousFrame".}: int16
+    beginOrderWithinParent* {.importc: "BeginOrderWithinParent".}: int16
+    beginOrderWithinContext* {.importc: "BeginOrderWithinContext".}: int16
+    focusOrder* {.importc: "FocusOrder".}: int16
+    popupId* {.importc: "PopupId".}: ImGuiID
+    autoFitFramesX* {.importc: "AutoFitFramesX".}: int8
+    autoFitFramesY* {.importc: "AutoFitFramesY".}: int8
+    autoFitChildAxises* {.importc: "AutoFitChildAxises".}: int8
+    autoFitOnlyGrows* {.importc: "AutoFitOnlyGrows".}: bool
+    autoPosLastDirection* {.importc: "AutoPosLastDirection".}: ImGuiDir
+    hiddenFramesCanSkipItems* {.importc: "HiddenFramesCanSkipItems".}: int8
+    hiddenFramesCannotSkipItems* {.importc: "HiddenFramesCannotSkipItems".}: int8
+    hiddenFramesForRenderOnly* {.importc: "HiddenFramesForRenderOnly".}: int8
+    disableInputsFrames* {.importc: "DisableInputsFrames".}: int8
+    setWindowPosAllowFlags* {.importc: "SetWindowPosAllowFlags".}: ImGuiCond
+    setWindowSizeAllowFlags* {.importc: "SetWindowSizeAllowFlags".}: ImGuiCond
+    setWindowCollapsedAllowFlags* {.importc: "SetWindowCollapsedAllowFlags".}: ImGuiCond
+    setWindowDockAllowFlags* {.importc: "SetWindowDockAllowFlags".}: ImGuiCond
+    setWindowPosVal* {.importc: "SetWindowPosVal".}: ImVec2
+    setWindowPosPivot* {.importc: "SetWindowPosPivot".}: ImVec2
+    iDStack* {.importc: "IDStack".}: ImVector[ImGuiID]
+    dc* {.importc: "DC".}: ImGuiWindowTempData
+    outerRectClipped* {.importc: "OuterRectClipped".}: ImRect
+    innerRect* {.importc: "InnerRect".}: ImRect
+    innerClipRect* {.importc: "InnerClipRect".}: ImRect
+    workRect* {.importc: "WorkRect".}: ImRect
+    parentWorkRect* {.importc: "ParentWorkRect".}: ImRect
+    clipRect* {.importc: "ClipRect".}: ImRect
+    contentRegionRect* {.importc: "ContentRegionRect".}: ImRect
+    hitTestHoleSize* {.importc: "HitTestHoleSize".}: ImVec2ih
+    hitTestHoleOffset* {.importc: "HitTestHoleOffset".}: ImVec2ih
+    lastFrameActive* {.importc: "LastFrameActive".}: int32
+    lastFrameJustFocused* {.importc: "LastFrameJustFocused".}: int32
+    lastTimeActive* {.importc: "LastTimeActive".}: float32
+    itemWidthDefault* {.importc: "ItemWidthDefault".}: float32
+    stateStorage* {.importc: "StateStorage".}: ImGuiStorage
+    columnsStorage* {.importc: "ColumnsStorage".}: ImVector[ImGuiOldColumns]
+    fontWindowScale* {.importc: "FontWindowScale".}: float32
+    fontDpiScale* {.importc: "FontDpiScale".}: float32
+    settingsOffset* {.importc: "SettingsOffset".}: int32
+    drawList* {.importc: "DrawList".}: ptr ImDrawList
+    drawListInst* {.importc: "DrawListInst".}: ImDrawList
+    parentWindow* {.importc: "ParentWindow".}: ptr ImGuiWindow
+    parentWindowInBeginStack* {.importc: "ParentWindowInBeginStack".}: ptr ImGuiWindow
+    rootWindow* {.importc: "RootWindow".}: ptr ImGuiWindow
+    rootWindowPopupTree* {.importc: "RootWindowPopupTree".}: ptr ImGuiWindow
+    rootWindowDockTree* {.importc: "RootWindowDockTree".}: ptr ImGuiWindow
+    rootWindowForTitleBarHighlight* {.importc: "RootWindowForTitleBarHighlight".}: ptr ImGuiWindow
+    rootWindowForNav* {.importc: "RootWindowForNav".}: ptr ImGuiWindow
+    navLastChildNavWindow* {.importc: "NavLastChildNavWindow".}: ptr ImGuiWindow
+    navLastIds* {.importc: "NavLastIds".}: array[2, ImGuiID]
+    navRectRel* {.importc: "NavRectRel".}: array[2, ImRect]
+    navRootFocusScopeId* {.importc: "NavRootFocusScopeId".}: ImGuiID
+    memoryDrawListIdxCapacity* {.importc: "MemoryDrawListIdxCapacity".}: int32
+    memoryDrawListVtxCapacity* {.importc: "MemoryDrawListVtxCapacity".}: int32
+    memoryCompacted* {.importc: "MemoryCompacted".}: bool
+    dockIsActive* {.importc: "DockIsActive".}: bool
+    dockNodeIsVisible* {.importc: "DockNodeIsVisible".}: bool
+    dockTabIsVisible* {.importc: "DockTabIsVisible".}: bool
+    dockTabWantClose* {.importc: "DockTabWantClose".}: bool
+    dockOrder* {.importc: "DockOrder".}: int16
+    dockStyle* {.importc: "DockStyle".}: ImGuiWindowDockStyle
+    dockNode* {.importc: "DockNode".}: ptr ImGuiDockNode
+    dockNodeAsHost* {.importc: "DockNodeAsHost".}: ptr ImGuiDockNode
+    dockId* {.importc: "DockId".}: ImGuiID
+    dockTabItemStatusFlags* {.importc: "DockTabItemStatusFlags".}: ImGuiItemStatusFlags
+    dockTabItemRect* {.importc: "DockTabItemRect".}: ImRect
+  ImGuiWindowClass* {.importc: "ImGuiWindowClass", imgui_header.} = object
+    classId* {.importc: "ClassId".}: ImGuiID
+    parentViewportId* {.importc: "ParentViewportId".}: ImGuiID
+    viewportFlagsOverrideSet* {.importc: "ViewportFlagsOverrideSet".}: ImGuiViewportFlags
+    viewportFlagsOverrideClear* {.importc: "ViewportFlagsOverrideClear".}: ImGuiViewportFlags
+    tabItemFlagsOverrideSet* {.importc: "TabItemFlagsOverrideSet".}: ImGuiTabItemFlags
+    dockNodeFlagsOverrideSet* {.importc: "DockNodeFlagsOverrideSet".}: ImGuiDockNodeFlags
+    dockingAlwaysTabBar* {.importc: "DockingAlwaysTabBar".}: bool
+    dockingAllowUnclassed* {.importc: "DockingAllowUnclassed".}: bool
+  ImGuiWindowDockStyle* {.importc: "ImGuiWindowDockStyle", imgui_header.} = object
+    colors* {.importc: "Colors".}: array[6, uint32]
   ImGuiWindowSettings* {.importc: "ImGuiWindowSettings", imgui_header.} = object
     id* {.importc: "ID".}: ImGuiID
     pos* {.importc: "Pos".}: ImVec2ih
@@ -2371,6 +2176,58 @@ type
     window* {.importc: "Window".}: ptr ImGuiWindow
     parentLastItemDataBackup* {.importc: "ParentLastItemDataBackup".}: ImGuiLastItemData
     stackSizesOnBegin* {.importc: "StackSizesOnBegin".}: ImGuiStackSizes
+  ImGuiWindowTempData* {.importc: "ImGuiWindowTempData", imgui_header.} = object
+    cursorPos* {.importc: "CursorPos".}: ImVec2
+    cursorPosPrevLine* {.importc: "CursorPosPrevLine".}: ImVec2
+    cursorStartPos* {.importc: "CursorStartPos".}: ImVec2
+    cursorMaxPos* {.importc: "CursorMaxPos".}: ImVec2
+    idealMaxPos* {.importc: "IdealMaxPos".}: ImVec2
+    currLineSize* {.importc: "CurrLineSize".}: ImVec2
+    prevLineSize* {.importc: "PrevLineSize".}: ImVec2
+    currLineTextBaseOffset* {.importc: "CurrLineTextBaseOffset".}: float32
+    prevLineTextBaseOffset* {.importc: "PrevLineTextBaseOffset".}: float32
+    isSameLine* {.importc: "IsSameLine".}: bool
+    isSetPos* {.importc: "IsSetPos".}: bool
+    indent* {.importc: "Indent".}: ImVec1
+    columnsOffset* {.importc: "ColumnsOffset".}: ImVec1
+    groupOffset* {.importc: "GroupOffset".}: ImVec1
+    cursorStartPosLossyness* {.importc: "CursorStartPosLossyness".}: ImVec2
+    navLayerCurrent* {.importc: "NavLayerCurrent".}: ImGuiNavLayer
+    navLayersActiveMask* {.importc: "NavLayersActiveMask".}: int16
+    navLayersActiveMaskNext* {.importc: "NavLayersActiveMaskNext".}: int16
+    navHideHighlightOneFrame* {.importc: "NavHideHighlightOneFrame".}: bool
+    navHasScroll* {.importc: "NavHasScroll".}: bool
+    menuBarAppending* {.importc: "MenuBarAppending".}: bool
+    menuBarOffset* {.importc: "MenuBarOffset".}: ImVec2
+    menuColumns* {.importc: "MenuColumns".}: ImGuiMenuColumns
+    treeDepth* {.importc: "TreeDepth".}: int32
+    treeJumpToParentOnPopMask* {.importc: "TreeJumpToParentOnPopMask".}: uint32
+    childWindows* {.importc: "ChildWindows".}: ImVector[ptr ImGuiWindow]
+    stateStorage* {.importc: "StateStorage".}: ptr ImGuiStorage
+    currentColumns* {.importc: "CurrentColumns".}: ptr ImGuiOldColumns
+    currentTableIdx* {.importc: "CurrentTableIdx".}: int32
+    layoutType* {.importc: "LayoutType".}: ImGuiLayoutType
+    parentLayoutType* {.importc: "ParentLayoutType".}: ImGuiLayoutType
+    itemWidth* {.importc: "ItemWidth".}: float32
+    textWrapPos* {.importc: "TextWrapPos".}: float32
+    itemWidthStack* {.importc: "ItemWidthStack".}: ImVector[float32]
+    textWrapPosStack* {.importc: "TextWrapPosStack".}: ImVector[float32]
+  ImRect* {.importc: "ImRect", imgui_header.} = object
+    min* {.importc: "Min".}: ImVec2
+    max* {.importc: "Max".}: ImVec2
+  ImVec1* {.importc: "ImVec1", imgui_header.} = object
+    x* {.importc: "x".}: float32
+  ImVec2* {.importc: "ImVec2", imgui_header.} = object
+    x* {.importc: "x".}: float32
+    y* {.importc: "y".}: float32
+  ImVec2ih* {.importc: "ImVec2ih", imgui_header.} = object
+    x* {.importc: "x".}: int16
+    y* {.importc: "y".}: int16
+  ImVec4* {.importc: "ImVec4", imgui_header.} = object
+    x* {.importc: "x".}: float32
+    y* {.importc: "y".}: float32
+    z* {.importc: "z".}: float32
+    w* {.importc: "w".}: float32
   STB_TexteditState* {.importc: "STB_TexteditState", imgui_header.} = object
     cursor* {.importc: "cursor".}: int32
     select_start* {.importc: "select_start".}: int32
@@ -2436,7 +2293,7 @@ proc next_chunk*[T](self: ptr ImChunkStream, p: ptr T): ptr T {.importc: "ImChun
 proc offset_from_ptr*[T](self: ptr ImChunkStream, p: ptr T): int32 {.importc: "ImChunkStream_offset_from_ptr".}
 proc ptr_from_offset*[T](self: ptr ImChunkStream, off: int32): ptr T {.importc: "ImChunkStream_ptr_from_offset".}
 proc size*(self: ptr ImChunkStream): int32 {.importc: "ImChunkStream_size".}
-# proc swap*(self: ptr ImChunkStream, rhs: ptr ImChunkStream_T): void {.importc: "ImChunkStream_swap".}
+#proc swap*(self: ptr ImChunkStream, rhs: ptr ImChunkStream_T): void {.importc: "ImChunkStream_swap".}
 proc hSVNonUDT*(pOut: ptr ImColor, h: float32, s: float32, v: float32, a: float32 = 1.0f): void {.importc: "ImColor_HSV".}
 proc newImColor*(): void {.importc: "ImColor_ImColor_Nil".}
 proc newImColor*(r: float32, g: float32, b: float32, a: float32 = 1.0f): void {.importc: "ImColor_ImColor_Float".}
@@ -3074,7 +2931,6 @@ proc igDestroyContext*(ctx: ptr ImGuiContext = nil): void {.importc: "igDestroyC
 proc igDestroyPlatformWindow*(viewport: ptr ImGuiViewportP): void {.importc: "igDestroyPlatformWindow".}
 proc igDestroyPlatformWindows*(): void {.importc: "igDestroyPlatformWindows".}
 proc igDockBuilderAddNode*(node_id: ImGuiID = 0.ImGuiID, flags: ImGuiDockNodeFlags = 0.ImGuiDockNodeFlags): ImGuiID {.importc: "igDockBuilderAddNode".}
-# proc igDockBuilderCopyDockSpace*(src_dockspace_id: ImGuiID, dst_dockspace_id: ImGuiID, in_window_remap_pairs: ImVector[const_cstringPtr]): void {.importc: "igDockBuilderCopyDockSpace".}
 proc igDockBuilderCopyNode*(src_node_id: ImGuiID, dst_node_id: ImGuiID, out_node_remap_pairs: ptr ImVector[ImGuiID]): void {.importc: "igDockBuilderCopyNode".}
 proc igDockBuilderCopyWindowSettings*(src_name: cstring, dst_name: cstring): void {.importc: "igDockBuilderCopyWindowSettings".}
 proc igDockBuilderDockWindow*(window_name: cstring, node_id: ImGuiID): void {.importc: "igDockBuilderDockWindow".}
@@ -3337,7 +3193,6 @@ proc igImParseFormatSanitizeForScanning*(fmt_in: cstring, fmt_out: cstring, fmt_
 proc igImParseFormatTrimDecorations*(format: cstring, buf: cstring, buf_size: uint): cstring {.importc: "igImParseFormatTrimDecorations".}
 proc igImPow*(x: float32, y: float32): float32 {.importc: "igImPow_Float".}
 proc igImPow*(x: float64, y: float64): float64 {.importc: "igImPow_double".}
-# proc igImQsort*(base: pointer, count: uint, size_of_element: uint, compare_func: proc(const: pointer, const: pointer): int32 {.cdecl, varargs.}): void {.importc: "igImQsort".}
 proc igImRotateNonUDT*(pOut: ptr ImVec2, v: ImVec2, cos_a: float32, sin_a: float32): void {.importc: "igImRotate".}
 proc igImRsqrt*(x: float32): float32 {.importc: "igImRsqrt_Float".}
 proc igImRsqrt*(x: float64): float64 {.importc: "igImRsqrt_double".}
@@ -3807,79 +3662,3 @@ proc igWindowRectRelToAbsNonUDT*(pOut: ptr ImRect, window: ptr ImGuiWindow, r: I
 {.pop.} # push dynlib / nodecl, etc...
 {.pop.} # push warning[HoleEnumConv]: off
 
-
-proc igStyleColorsCherry*(dst: ptr ImGuiStyle = nil): void =
-  ## To conmemorate this bindings this style is included as a default.
-  ## Style created originally by r-lyeh
-  var style = igGetStyle()
-  if dst != nil:
-    style = dst
-
-  const ImVec4 = proc(x: float32, y: float32, z: float32, w: float32): ImVec4 = ImVec4(x: x, y: y, z: z, w: w)
-  const igHI = proc(v: float32): ImVec4 = ImVec4(0.502f, 0.075f, 0.256f, v)
-  const igMED = proc(v: float32): ImVec4 = ImVec4(0.455f, 0.198f, 0.301f, v)
-  const igLOW = proc(v: float32): ImVec4 = ImVec4(0.232f, 0.201f, 0.271f, v)
-  const igBG = proc(v: float32): ImVec4 = ImVec4(0.200f, 0.220f, 0.270f, v)
-  const igTEXT = proc(v: float32): ImVec4 = ImVec4(0.860f, 0.930f, 0.890f, v)
-
-  style.colors[ImGuiCol.Text.int32]                 = igTEXT(0.88f)
-  style.colors[ImGuiCol.TextDisabled.int32]         = igTEXT(0.28f)
-  style.colors[ImGuiCol.WindowBg.int32]             = ImVec4(0.13f, 0.14f, 0.17f, 1.00f)
-  style.colors[ImGuiCol.PopupBg.int32]              = igBG(0.9f)
-  style.colors[ImGuiCol.Border.int32]               = ImVec4(0.31f, 0.31f, 1.00f, 0.00f)
-  style.colors[ImGuiCol.BorderShadow.int32]         = ImVec4(0.00f, 0.00f, 0.00f, 0.00f)
-  style.colors[ImGuiCol.FrameBg.int32]              = igBG(1.00f)
-  style.colors[ImGuiCol.FrameBgHovered.int32]       = igMED(0.78f)
-  style.colors[ImGuiCol.FrameBgActive.int32]        = igMED(1.00f)
-  style.colors[ImGuiCol.TitleBg.int32]              = igLOW(1.00f)
-  style.colors[ImGuiCol.TitleBgActive.int32]        = igHI(1.00f)
-  style.colors[ImGuiCol.TitleBgCollapsed.int32]     = igBG(0.75f)
-  style.colors[ImGuiCol.MenuBarBg.int32]            = igBG(0.47f)
-  style.colors[ImGuiCol.ScrollbarBg.int32]          = igBG(1.00f)
-  style.colors[ImGuiCol.ScrollbarGrab.int32]        = ImVec4(0.09f, 0.15f, 0.16f, 1.00f)
-  style.colors[ImGuiCol.ScrollbarGrabHovered.int32] = igMED(0.78f)
-  style.colors[ImGuiCol.ScrollbarGrabActive.int32]  = igMED(1.00f)
-  style.colors[ImGuiCol.CheckMark.int32]            = ImVec4(0.71f, 0.22f, 0.27f, 1.00f)
-  style.colors[ImGuiCol.SliderGrab.int32]           = ImVec4(0.47f, 0.77f, 0.83f, 0.14f)
-  style.colors[ImGuiCol.SliderGrabActive.int32]     = ImVec4(0.71f, 0.22f, 0.27f, 1.00f)
-  style.colors[ImGuiCol.Button.int32]               = ImVec4(0.47f, 0.77f, 0.83f, 0.14f)
-  style.colors[ImGuiCol.ButtonHovered.int32]        = igMED(0.86f)
-  style.colors[ImGuiCol.ButtonActive.int32]         = igMED(1.00f)
-  style.colors[ImGuiCol.Header.int32]               = igMED(0.76f)
-  style.colors[ImGuiCol.HeaderHovered.int32]        = igMED(0.86f)
-  style.colors[ImGuiCol.HeaderActive.int32]         = igHI(1.00f)
-  style.colors[ImGuiCol.ResizeGrip.int32]           = ImVec4(0.47f, 0.77f, 0.83f, 0.04f)
-  style.colors[ImGuiCol.ResizeGripHovered.int32]    = igMED(0.78f)
-  style.colors[ImGuiCol.ResizeGripActive.int32]     = igMED(1.00f)
-  style.colors[ImGuiCol.PlotLines.int32]            = igTEXT(0.63f)
-  style.colors[ImGuiCol.PlotLinesHovered.int32]     = igMED(1.00f)
-  style.colors[ImGuiCol.PlotHistogram.int32]        = igTEXT(0.63f)
-  style.colors[ImGuiCol.PlotHistogramHovered.int32] = igMED(1.00f)
-  style.colors[ImGuiCol.TextSelectedBg.int32]       = igMED(0.43f)
-
-  style.windowPadding     = ImVec2(x: 6f, y: 4f)
-  style.windowRounding    = 0.0f
-  style.framePadding      = ImVec2(x: 5f, y: 2f)
-  style.frameRounding     = 3.0f
-  style.itemSpacing       = ImVec2(x: 7f, y: 1f)
-  style.itemInnerSpacing  = ImVec2(x: 1f, y: 1f)
-  style.touchExtraPadding = ImVec2(x: 0f, y: 0f)
-  style.indentSpacing     = 6.0f
-  style.scrollbarSize     = 12.0f
-  style.scrollbarRounding = 16.0f
-  style.grabMinSize       = 20.0f
-  style.grabRounding      = 2.0f
-
-  style.windowTitleAlign.x = 0.50f
-
-  style.colors[ImGuiCol.Border.int32] = ImVec4(0.539f, 0.479f, 0.255f, 0.162f)
-  style.frameBorderSize  = 0.0f
-  style.windowBorderSize = 1.0f
-
-  style.displaySafeAreaPadding.y = 0
-  style.framePadding.y = 1
-  style.itemSpacing.y = 1
-  style.windowPadding.y = 3
-  style.scrollbarSize = 13
-  style.frameBorderSize = 1
-  style.tabBorderSize = 1
