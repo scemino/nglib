@@ -11,7 +11,8 @@
 import ../imgui, ../opengl
 
 var
-  gGlslVersionString: cstring = "#version 330 core"
+  gVersion: int
+  gGlslVersionString: cstring
   gFontTexture: uint32 = 0
   gShaderHandle: uint32 = 0
   gVertHandle: uint32 = 0
@@ -24,10 +25,15 @@ var
   gVboHandle: uint32 = 0
   gElementsHandle: uint32 = 0
 
-proc igOpenGL3Init*(): bool =
+proc igOpenGL3Init*(version = 0): bool =
   ## Initiate Opengl, this proc does nothing here because I assume that you are using modern opengl 3.2>.
   ## If you actually need to use lower specs open and issue or PR the fix please.
   # @TODO: add opengles support
+  gVersion = version
+  if version == 0:
+    gGlslVersionString = "#version 330 core"
+  else:
+    gGlslVersionString = "#version " & $version
   return true
 
 proc igOpenGL3CheckProgram(handle: uint32, desc: string) =
@@ -86,28 +92,60 @@ proc igOpenGL3CreateDeviceObjects() =
   glGetIntegerv(GL_VERTEX_ARRAY_BINDING, last_vertex_array.addr)
 
   # @NOTE: if you need the other shader versions, PR them please.
-  var vertex_shader_glsl: cstring = """
-layout (location = 0) in vec2 Position;
-layout (location = 1) in vec2 UV;
-layout (location = 2) in vec4 Color;
-uniform mat4 ProjMtx;
-out vec2 Frag_UV;
-out vec4 Frag_Color;
-void main() {
-  Frag_UV = UV;
-  Frag_Color = Color;
-  gl_Position = ProjMtx * vec4(Position.xy, 0, 1);
-}
-  """
-  var fragment_shader_glsl: cstring = """
-in vec2 Frag_UV;
-in vec4 Frag_Color;
-uniform sampler2D Texture;
-layout (location = 0) out vec4 Out_Color;
-void main() {
-  Out_Color = Frag_Color * texture(Texture, Frag_UV.st);
-}
-  """
+  var vertex_shader_glsl: cstring
+  var fragment_shader_glsl: cstring
+  if gVersion == 0:
+    vertex_shader_glsl = """
+  layout (location = 0) in vec2 Position;
+  layout (location = 1) in vec2 UV;
+  layout (location = 2) in vec4 Color;
+  uniform mat4 ProjMtx;
+  out vec2 Frag_UV;
+  out vec4 Frag_Color;
+  void main() {
+    Frag_UV = UV;
+    Frag_Color = Color;
+    gl_Position = ProjMtx * vec4(Position.xy, 0, 1);
+  }
+    """
+    fragment_shader_glsl = """
+  in vec2 Frag_UV;
+  in vec4 Frag_Color;
+  uniform sampler2D Texture;
+  layout (location = 0) out vec4 Out_Color;
+  void main() {
+    Out_Color = Frag_Color * texture(Texture, Frag_UV.st);
+  }
+    """
+  else:
+    vertex_shader_glsl = """
+      uniform mat4 ProjMtx;
+      attribute vec2 Position;
+      attribute vec2 UV;
+      attribute vec4 Color;
+      varying vec2 Frag_UV;
+      varying vec4 Frag_Color;
+      void main()
+      {
+          Frag_UV = UV;
+          Frag_Color = Color;
+          gl_Position = ProjMtx * vec4(Position.xy,0,1);
+      }
+      """
+
+    fragment_shader_glsl = """
+        #ifdef GL_ES
+            precision mediump float;
+        #endif
+        uniform sampler2D Texture;
+        varying vec2 Frag_UV;
+        varying vec4 Frag_Color;
+        void main()
+        {
+            gl_FragColor = Frag_Color * texture2D(Texture, Frag_UV.st);
+        }
+        """
+
   vertex_shader_glsl = $gGlslVersionString & "\n" & $vertex_shader_glsl
   fragment_shader_glsl = $gGlslVersionString & "\n" & $fragment_shader_glsl
 
