@@ -60,7 +60,7 @@ when not defined(glCustomLoader) and not defined(emscripten):
         result = glxGetProcAddress(procName)
     else:
       result = symAddr(glHandle, procName)
-    if result == nil: raiseInvalidLibrary(procName)
+    if result == nil and not defined(haiku): raiseInvalidLibrary(procName)
 
 proc setGLGetProc*(getProc: proc(procName: cstring): pointer {.cdecl.}) =
   glGetProc = getProc
